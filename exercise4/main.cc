@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "t1.h"
+#include "hh/t1.h"
 
 #include <TMath.h>
 #include <TFile.h>
@@ -23,7 +23,7 @@ class Particle{
 
 	public:
 	Particle();
-	// FIXME : Create an additional constructor that takes 4 arguments --> the 4-momentum
+	Particle(double, double, double, double);
 	double   pt, eta, phi, E, m, p[4];
 	void     p4(double, double, double, double);
 	void     print();
@@ -48,8 +48,13 @@ Particle::Particle(){
 }
 
 //*** Additional constructor ------------------------------------------------------
-Particle::Particle( ){ 
-	//FIXME
+Particle::Particle(double E, double pt, double eta, double phi){
+    E = E;
+    pt = pt;
+    phi = phi;
+    eta = eta;
+    p4(pt,eta,phi,E);
+    setMass(E*E-p[1]*p[1]-p[2]*p[2]-p[3]*p[3]);
 }
 
 //
@@ -57,18 +62,23 @@ Particle::Particle( ){
 //
 double Particle::sintheta(){
 
-	//FIXME
+    double expeta;
+    expeta = exp(-1.0*eta);
+    return 2.0*expeta/(1.0+expeta*expeta);
 }
 
 void Particle::p4(double pT, double eta, double phi, double energy){
 
-	//FIXME
+    p[1] = pT*cos(phi*PI/180.0);
+    p[2] = pT*sin(phi*PI/180.0);
+    p[3] = pT*sinh(eta);
+    p[0] = energy;
 
 }
 
 void Particle::setMass(double mass)
 {
-	// FIXME
+    double m = mass;
 }
 
 //
@@ -77,6 +87,26 @@ void Particle::setMass(double mass)
 void Particle::print(){
 	std::cout << std::endl;
 	std::cout << "(" << p[0] <<",\t" << p[1] <<",\t"<< p[2] <<",\t"<< p[3] << ")" << "  " <<  sintheta() << std::endl;
+}
+
+class Lepton: public Particle {
+    public:
+    double charge;
+    void setCharge(double);
+}
+
+void Lepton::setCharge(double q){
+    charge = q;
+}
+
+class Jet: public Particle {
+    public:
+    double flavor;
+    void setFlavor(int);
+}
+
+void Jet::setFlavor(int f){
+    flavor = f;
 }
 
 int main() {
@@ -105,12 +135,13 @@ int main() {
 	// Total number of events in ROOT tree
 	Long64_t nentries = t1->GetEntries();
 
-	for (Long64_t jentry=0; jentry<100;jentry++)
+//	for (Long64_t jentry=0; jentry<100;jentry++)
+    for (Long64_t jentry=0; jentry<3;jentry++)
  	{
 		t1->GetEntry(jentry);
 		std::cout<<" Event "<< jentry <<std::endl;	
 
-		//FIX ME
+		std::cout << sizeof(jetPt) << endl;
 
 
 	} // Loop over all events
