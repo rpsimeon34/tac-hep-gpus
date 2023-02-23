@@ -26,7 +26,11 @@ const int grid_size = DSIZE/block_size;
 __global__ void dot_product(const int *A, const int *B, int *C, int N) {
 
 	// FIXME
-	// Use atomicAdd	
+	// Use atomicAdd
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    if (idx < N) {
+        atomicAdd(C,A[idx]*B[idx]);
+    }
 }
 
 
@@ -48,31 +52,43 @@ int main() {
 
 
 	// Allocate device memory 
-    cudaMalloc(&d_A, DSIZE*sizeof(float));
-    cudaMalloc(&d_B, DSIZE*sizeof(float));
-    cudaMalloc(&d_C, DSIZE*sizeof(float));
+    cudaMalloc(&d_A, DSIZE*sizeof(int));
+    cudaMalloc(&d_B, DSIZE*sizeof(int));
+    cudaMalloc(&d_C, sizeof(int));
 	
 	// Check memory allocation for errors
-    cudaCheckErrors("Error while allocating device memory");
+    cudaCheckErrors();
 
 	// Copy the matrices on GPU
-    cudaMemcpy(d_A, h_A, DSIZE*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_B, h_B, DSIZE*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_A, h_A, DSIZE*sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, DSIZE*sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, sizeof(int), cudaMemcpyHostToDevice);
 	
 	// Check memory copy for errors
-    cudaCheckErrors("Error while copying vectors to device");
+    cudaCheckErrors();
 
 	// Define block/grid dimentions and launch kernel
     dot_product<<<grid_size, block_size>>>(d_A, d_B, d_C, DSIZE);
-    cudaCheckErrors("Error while running kernel");
+    cudaDeviceSynchronize();
+    cudaCheckErrors();
 	
 	// Copy results back to host
-	
+	cudaMemcpy(h_C, d_C, sizeof(int), cudaMemcpyDeviceToHost);
+
     // Check copy for errors
+    cudaCheckErrors();
 
 	// Verify result
+    printf("Result is %d, expected %d\n",*h_C,DSIZE*a*b);
 
 	// Free allocated memory
+    free(h_A);
+    free(h_B);
+    free(h_C);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
 	
 	return 0;
 
