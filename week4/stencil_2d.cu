@@ -12,31 +12,37 @@ using namespace std;
 __global__ void stencil_2d(int *in, int *out) {
 
 	__shared__ int temp[BLOCK_SIZE + 2 * RADIUS][BLOCK_SIZE + 2 * RADIUS];
-	int gindex_x = FIXME
-	int lindex_x = FIXME
-	int gindex_y = FIXME
-	int lindex_y = FIXME
+	int gindex_x = threadIdx.x + blockIdx.x * blockDim.x;
+	int lindex_x = threadIdx.x + RADIUS;
+	int gindex_y = threadIdx.y + blockIdx.y * blockDim.y;
+	int lindex_y = threadIdx.y + RADIUS;
 
 	// Read input elements into shared memory
 	int size = N + 2 * RADIUS;
-	temp[lindex_x][lindex_y] = FIXME
+	temp[lindex_x][lindex_y] = in[gindex_y+gindex_x*N];
 
 	if (threadIdx.x < RADIUS) {
-		FIXME
+		temp[lindex_x - RADIUS][lindex_y] = in[gindex_y+(gindex_x - RADIUS)*N];
+        temp[lindex_x + BLOCK_SIZE][lindex_y] = in[gindex_y+(gindex_x + BLOCK_SIZE)*N];
 	}
 
 	if (threadIdx.y < RADIUS ) {
-		FIXME
+		temp[lindex_x][lindex_y - RADIUS] = in[gindex_y-RADIUS+N*gindex_x];
+        temp[lindex_x][lindex_y + BLOCK_SIZE] = in[gindex_y+BLOCK_SIZE+N*gindex_x];
 	}
 
+    __syncthreads();
 
 	// Apply the stencil
 	int result = 0;
 	for (int offset = -RADIUS; offset <= RADIUS; offset++){
-		FIXME
+		result += temp[lindex_x+offset][lindex_y];
+        result += temp[lindex_x][lindex_y+offset];
 	}
+    // Avoid double-counting the center
+    result -= temp[lindex_x][lindex_y];
 
-	FIXME
+	//FIXME
 	// Store the result
 	out[gindex_y+size*gindex_x] = result;
 }
@@ -61,11 +67,11 @@ int main(void) {
 
 	// Alloc space for device copies
 	cudaMalloc((void **)&d_in, size);
-	FIXME
+	cudaMalloc((void **)&d_out, size);
 
 	// Copy to device
 	cudaMemcpy(d_in, in, size, cudaMemcpyHostToDevice);
-	FIXME
+	cudaMemcpy(d_out, out, size, cudaMemcpyHostToDevice);
 
 	// Launch stencil_2d() kernel on GPU
 	int gridSize = (N + BLOCK_SIZE-1)/BLOCK_SIZE;
@@ -76,7 +82,8 @@ int main(void) {
 	stencil_2d<<<grid,block>>>(d_in + RADIUS*(N + 2*RADIUS) + RADIUS , d_out + RADIUS*(N + 2*RADIUS) + RADIUS);
 
 	// Copy result back to host
-	FIXME
+	cudaMemcpy(in, d_in, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(out, d_out, size, cudaMemcpyDeviceToHost);
 
 	// Error Checking
 	for (int i = 0; i < N + 2 * RADIUS; ++i) {
