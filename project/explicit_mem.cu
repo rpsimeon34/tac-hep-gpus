@@ -127,10 +127,11 @@ int main(void) {
 
     // Error Checking
     int exp_edge = A_val*B_val*((RADIUS*4+1)*(DSIZE-2*RADIUS)+2*RADIUS);
+    int exp_center = A_val*B_val*((RADIUS*4+1)*(RADIUS*4+1)*(DSIZE-2*RADIUS)+2*RADIUS);
     for (int i = 0; i < N + 2 * RADIUS; ++i) {
         for (int j = 0; j < N + 2 * RADIUS; ++j) {
 
-            if ((i < RADIUS || i >= N + RADIUS) && (j < RADIUS || i >= N+RADIUS)) {
+            if ((i < RADIUS || i >= N + RADIUS) && (j < RADIUS || j >= N+RADIUS)) {
                 if (h_C[j+i*(N + 2 * RADIUS)] != A_val*B_val*DSIZE) {
                     printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, h_C[j+i*(N + 2 * RADIUS)], A_val*B_val*DSIZE);
                     return -1;
@@ -149,8 +150,8 @@ int main(void) {
                 }
             }
             else {
-                if (h_C[j+i*(N + 2 * RADIUS)] != exp_edge*(RADIUS*4+1)) {
-                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, h_C[j+i*(N + 2 * RADIUS)], exp_edge*(1+4*RADIUS));
+                if (h_C[j+i*(N + 2 * RADIUS)] != exp_center) {
+                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, h_C[j+i*(N + 2 * RADIUS)], exp_center);
                     return -1;
                 }
             }
