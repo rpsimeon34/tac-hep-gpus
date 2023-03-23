@@ -9,6 +9,8 @@ using namespace std;
 #define N 512
 #define RADIUS 3
 #define BLOCK_SIZE 32
+#define A_val 1
+#define B_val 2
 
 // error checking macro
 #define cudaCheckErrors(msg)                                   \
@@ -79,10 +81,10 @@ int main(void) {
     // Alloc space for host copies and setup values
     int size = (N + 2*RADIUS)*(N + 2*RADIUS) * sizeof(int);
     int DSIZE = N + 2*RADIUS;
-    in_A = (int *)malloc(size); fill_ints(in, (N + 2*RADIUS)*(N + 2*RADIUS),1);
-    out_A = (int *)malloc(size); fill_ints(out, (N + 2*RADIUS)*(N + 2*RADIUS),1);
-    in_B = (int *)malloc(size); fill_ints(in, (N + 2*RADIUS)*(N + 2*RADIUS),2);
-    out_B = (int *)malloc(size); fill_ints(out, (N + 2*RADIUS)*(N + 2*RADIUS),2);
+    in_A = (int *)malloc(size); fill_ints(in, (N + 2*RADIUS)*(N + 2*RADIUS),A_val);
+    out_A = (int *)malloc(size); fill_ints(out, (N + 2*RADIUS)*(N + 2*RADIUS),A_val);
+    in_B = (int *)malloc(size); fill_ints(in, (N + 2*RADIUS)*(N + 2*RADIUS),B_val);
+    out_B = (int *)malloc(size); fill_ints(out, (N + 2*RADIUS)*(N + 2*RADIUS),B_val);
     h_C = (int *)malloc(size); fill_ints(out, (N + 2*RADIUS)*(N + 2*RADIUS),0);
 
     // Alloc space for device copies
@@ -124,24 +126,31 @@ int main(void) {
     cudaCheckErrors("Error while copying from device to host");
 
     // Error Checking
+    int exp_edge = A_val*B_val*((RADIUS*4+1)*(DSIZE-2*RADIUS)+2*RADIUS));
     for (int i = 0; i < N + 2 * RADIUS; ++i) {
         for (int j = 0; j < N + 2 * RADIUS; ++j) {
 
-            if (i < RADIUS || i >= N + RADIUS) {
-                if (out[j+i*(N + 2 * RADIUS)] != 1) {
-                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], 1);
+            if ((i < RADIUS || i >= N + RADIUS) && (j < RADIUS || i >= N+RADIUS)) {
+                if (out[j+i*(N + 2 * RADIUS)] != A_val*B_val*DSIZE) {
+                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], A_val*B_val*DSIZE);
                     return -1;
                 }
             }
-            else if (j < RADIUS || j >= N + RADIUS) {
-                if (out[j+i*(N + 2 * RADIUS)] != 1) {
-                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], 1);
+            else if ((j < RADIUS || j >= N + RADIUS) && (i >= RADIUS && i< N+RADIUS)){
+                if (out[j+i*(N + 2 * RADIUS)] != exp_edge) {
+                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], exp_edge);
                     return -1;
                 }
             }        
+            else if ((i < RADIUS || i >= N + RADIUS) && (j >= RADIUS && j< N+RADIUS)){
+                if (out[j+i*(N + 2 * RADIUS)] != exp_edge) {
+                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], exp_edge);
+                    return -1;
+                }
+            }
             else {
-                if (out[j+i*(N + 2 * RADIUS)] != 1 + 4 * RADIUS) {
-                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], 1 + 4*RADIUS);
+                if (out[j+i*(N + 2 * RADIUS)] != exp_edge*(RADIUS*4+1)) {
+                    printf("Mismatch at index [%d,%d], was: %d, should be: %d\n", i,j, out[j+i*(N + 2 * RADIUS)], exp_edge*(1+4*RADIUS));
                     return -1;
                 }
             }
