@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-const int DSIZE = 10;
+const int DSIZE = 518;
 const int RADIUS = 3;
 const int A_intval = 1;
 const int B_intval = 2;
