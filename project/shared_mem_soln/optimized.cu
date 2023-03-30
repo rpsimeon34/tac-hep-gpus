@@ -112,12 +112,17 @@ int main(void) {
     cudaMalloc((void **)&d_C, size);
     cudaCheckErrors("Error while allocating device memory");
 
-    // Copy to device
-    cudaMemcpy(d_in_A, in_A, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_out_A, out_A, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_in_B, in_B, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_out_B, out_B, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_C, h_C, size, cudaMemcpyHostToDevice);
+    //Create streams
+    cudaStream_t stream1, stream2;
+    cudaStreamCreate(&stream1);
+    cudaStreamCreate(&stream2);
+
+    //Copy to device on different streams
+    cudaMemcpyAsync(d_in_A, in_A, size, cudaMemcpyHostToDevice, stream1);
+    cudaMemcpyAsync(d_out_A, out_A, size, cudaMemcpyHostToDevice, stream1);
+    cudaMemcpyAsync(d_in_B, in_B, size, cudaMemcpyHostToDevice, stream2);
+    cudaMemcpyAsync(d_out_B, out_B, size, cudaMemcpyHostToDevice, stream2);
+    cudaMemcpyAsync(d_C, h_C, size, cudaMemcpyHostToDevice, stream2);
     cudaCheckErrors("Error while copying from host to device");
 
     // Launch stencil_2d() kernel on GPU
@@ -126,8 +131,8 @@ int main(void) {
     dim3 block(BLOCK_SIZE, BLOCK_SIZE);
     // Launch the kernel 
     // Properly set memory address for first element on which the stencil will be applied
-    stencil_2d<<<grid,block>>>(d_in_A + RADIUS*(N + 2*RADIUS) + RADIUS , d_out_A + RADIUS*(N + 2*RADIUS) + RADIUS);
-    stencil_2d<<<grid,block>>>(d_in_B + RADIUS*(N + 2*RADIUS) + RADIUS , d_out_B + RADIUS*(N + 2*RADIUS) + RADIUS);
+    stencil_2d<<<grid,block, 0, stream1>>>(d_in_A + RADIUS*(N + 2*RADIUS) + RADIUS , d_out_A + RADIUS*(N + 2*RADIUS) + RADIUS);
+    stencil_2d<<<grid,block, 0, stream2>>>(d_in_B + RADIUS*(N + 2*RADIUS) + RADIUS , d_out_B + RADIUS*(N + 2*RADIUS) + RADIUS);
     cudaCheckErrors("Error while launching stencil kernel");
 
     // Launch mat_mult kernel on GPU
