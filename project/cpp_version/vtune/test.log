@@ -1,0 +1,46 @@
+vtune: Warning: Microarchitecture performance insights will not be available. Make sure the sampling driver is installed and enabled on your system.
+vtune: Collection started. To stop the collection, either press CTRL-C or enter from another console window: vtune -r /afs/hep.wisc.edu/user/rsimeon/tac_hep_gpus/week2/project/r.test -command stop.
+Output (0,0): 1036, expected 1036
+Output (radius+1,0): 13324, expected 13324
+Output (0,radius+1): 13324, expected 13324
+Output (radius+1,radius+1): 173068, expected 173068
+vtune: Collection stopped.
+vtune: Using result path `/afs/hep.wisc.edu/user/rsimeon/tac_hep_gpus/week2/project/r.test'
+vtune: Executing actions  0 %                                                  vtune: Executing actions  0 % Finalizing results                               vtune: Executing actions  0 % Finalizing the result                            vtune: Executing actions  0 % Clearing the database                            vtune: Executing actions  7 % Clearing the database                            vtune: Executing actions  7 % Loading raw data to the database                 vtune: Executing actions  7 % Loading 'systemcollector-60555-g38n12.hep.wisc.edvtune: Executing actions 12 % Loading 'systemcollector-60555-g38n12.hep.wisc.edvtune: Executing actions 12 % Loading '60555-60568.0.trace' file               vtune: Executing actions 12 % Updating precomputed scalar metrics              vtune: Executing actions 14 % Updating precomputed scalar metrics              vtune: Executing actions 14 % Processing profile metrics and debug information vtune: Executing actions 19 % Processing profile metrics and debug information vtune: Executing actions 19 % Setting data model parameters                    vtune: Executing actions 19 % Resolving module symbols                         vtune: Executing actions 19 % Resolving information for `main'                 
+vtune: Warning: Cannot locate debugging information for file `/afs/hep.wisc.edu/user/rsimeon/tac_hep_gpus/week2/project/main'.
+vtune: Executing actions 19 % Resolving information for `libc.so.6'            vtune: Executing actions 20 % Resolving information for `libc.so.6'            
+vtune: Warning: Cannot locate debugging information for file `/lib64/libc.so.6'.
+vtune: Executing actions 22 % Resolving information for `libc.so.6'            vtune: Executing actions 22 % Resolving bottom user stack information          vtune: Executing actions 23 % Resolving bottom user stack information          vtune: Executing actions 23 % Resolving thread name information                vtune: Executing actions 24 % Resolving thread name information                vtune: Executing actions 24 % Resolving call target names for dynamic code     vtune: Executing actions 24 % Resolving interrupt name information             vtune: Executing actions 26 % Resolving interrupt name information             vtune: Executing actions 26 % Processing profile metrics and debug information vtune: Executing actions 28 % Processing profile metrics and debug information vtune: Executing actions 29 % Processing profile metrics and debug information vtune: Executing actions 30 % Processing profile metrics and debug information vtune: Executing actions 30 % Setting data model parameters                    vtune: Executing actions 30 % Precomputing frequently used data                vtune: Executing actions 30 % Precomputing frequently used data                vtune: Executing actions 31 % Precomputing frequently used data                vtune: Executing actions 33 % Precomputing frequently used data                vtune: Executing actions 34 % Precomputing frequently used data                vtune: Executing actions 36 % Precomputing frequently used data                vtune: Executing actions 36 % Updating precomputed scalar metrics              vtune: Executing actions 37 % Updating precomputed scalar metrics              vtune: Executing actions 37 % Discarding redundant overtime data               vtune: Executing actions 39 % Discarding redundant overtime data               vtune: Executing actions 39 % Saving the result                                vtune: Executing actions 41 % Saving the result                                vtune: Executing actions 42 % Saving the result                                vtune: Executing actions 49 % Saving the result                                vtune: Executing actions 50 % Saving the result                                vtune: Executing actions 50 % Generating a report                              vtune: Executing actions 50 % Setting data model parameters                    vtune: Executing actions 75 % Setting data model parameters                    vtune: Executing actions 75 % Generating a report                              Elapsed Time: 0.437s
+    CPU Time: 0.430s
+        Effective Time: 0.430s
+        Spin Time: 0s
+        Overhead Time: 0s
+    Total Thread Count: 1
+    Paused Time: 0s
+
+Top Hotspots
+Function  Module  CPU Time  % of CPU Time(%)
+--------  ------  --------  ----------------
+matmul    main      0.410s             95.3%
+stencil   main      0.020s              4.7%
+Collection and Platform Info
+    Application Command Line: ./main 
+    Operating System: 6.1.15-1.el7.x86_64 \S Kernel \r on an \m 
+    Computer Name: g38n12.hep.wisc.edu
+    Result Size: 3.4 MB 
+    Collection start time: 19:45:43 28/03/2023 UTC
+    Collection stop time: 19:45:44 28/03/2023 UTC
+    Collector Type: User-mode sampling and tracing
+    CPU
+        Name: Unknown
+        Frequency: 2.300 GHz
+        Logical CPU Count: 96
+        Cache Allocation Technology
+            Level 2 capability: not detected
+            Level 3 capability: available
+
+If you want to skip descriptions of detected performance issues in the report,
+enter: vtune -report summary -report-knob show-issues=false -r <my_result_dir>.
+Alternatively, you may view the report in the csv format: vtune -report
+<report_name> -format=csv.
+vtune: Executing actions 100 % Generating a report                             vtune: Executing actions 100 % done                                            

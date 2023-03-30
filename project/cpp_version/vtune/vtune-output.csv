@@ -1,0 +1,3 @@
+Function;CPU Time;CPU Time:Effective Time;CPU Time:Spin Time;CPU Time:Overhead Time;Module;Function (Full);Source File;Start Address
+matmul;0.409991;0.409991;0.0;0.0;main;matmul(int (*)[518], int (*)[518], int [518] (&)[518]);[Unknown];0x40094d
+stencil;0.020009;0.020009;0.0;0.0;main;stencil(int (*)[518], int [518] (&)[518]);[Unknown];0x40081d

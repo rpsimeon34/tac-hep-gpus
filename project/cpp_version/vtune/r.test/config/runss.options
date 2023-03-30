@@ -1,0 +1,16 @@
+-r
+/afs/hep.wisc.edu/user/rsimeon/tac_hep_gpus/week2/project/r.test
+--stack-stitching
+--data-limit-mb=0
+--disk-space-limit=0
+--mrte-type=java,python
+--stack-unwind-limit=8388608
+--itt-config=frame
+--itt-config=task,event,counter
+--stackwalk=offline
+--mrte-mode=auto
+--type=cpu:counters:nostack
+--type=cpu:stack
+--interval=10
+--
+./main
